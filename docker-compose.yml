@@ -1,0 +1,106 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./server
+    container_name: fortune-backend
+    restart: always
+    environment:
+      - DATABASE_URI=postgresql+asyncpg://postgres:postgres@db:5432/fortune_platform
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - SECRET_KEY=${SECRET_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - fortune-network
+
+  frontend:
+    build: ./web
+    container_name: fortune-frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - fortune-network
+    environment:
+      - VITE_APP_NAME=天机阁占卜平台
+      - VITE_APP_HOMEPAGE=https://sanshengshui.com
+      - VITE_APP_AUTHOR=仲戌字
+
+  db:
+    image: postgres:14-alpine
+    container_name: fortune-db
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=fortune_platform
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - fortune-network
+
+  redis:
+    image: redis:alpine
+    container_name: fortune-redis
+    restart: always
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - fortune-network
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: fortune-prometheus
+    restart: always
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    networks:
+      - fortune-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: fortune-grafana
+    restart: always
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - fortune-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  fortune-network:
+    driver: bridge 

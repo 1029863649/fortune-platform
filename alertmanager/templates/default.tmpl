@@ -1,0 +1,56 @@
+{{ define "wechat.default.message" }}
+告警类型: {{ .GroupLabels.alertname }}
+告警级别: {{ .CommonLabels.severity }}
+告警状态: {{ .Status }}
+告警详情: {{ .CommonAnnotations.description }}
+开始时间: {{ .StartsAt.Format "2006-01-02 15:04:05" }}
+{{ end }}
+
+{{ define "wechat.critical.message" }}
+[紧急] 严重告警通知
+告警类型: {{ .GroupLabels.alertname }}
+告警级别: {{ .CommonLabels.severity }}
+告警状态: {{ .Status }}
+告警详情: {{ .CommonAnnotations.description }}
+开始时间: {{ .StartsAt.Format "2006-01-02 15:04:05" }}
+请立即处理!
+{{ end }}
+
+{{ define "email.default.subject" }}
+[天机阁] {{ .Status }} {{ .GroupLabels.alertname }}
+{{ end }}
+
+{{ define "email.default.html" }}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>告警通知</title>
+</head>
+<body>
+    <h2>告警信息</h2>
+    <table>
+        <tr>
+            <td>告警名称</td>
+            <td>{{ .GroupLabels.alertname }}</td>
+        </tr>
+        <tr>
+            <td>告警级别</td>
+            <td>{{ .CommonLabels.severity }}</td>
+        </tr>
+        <tr>
+            <td>告警状态</td>
+            <td>{{ .Status }}</td>
+        </tr>
+        <tr>
+            <td>告警详情</td>
+            <td>{{ .CommonAnnotations.description }}</td>
+        </tr>
+        <tr>
+            <td>开始时间</td>
+            <td>{{ .StartsAt.Format "2006-01-02 15:04:05" }}</td>
+        </tr>
+    </table>
+</body>
+</html>
+{{ end }} 

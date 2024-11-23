@@ -1,0 +1,62 @@
+groups:
+  - name: node
+    rules:
+      # CPU使用率告警
+      - alert: NodeHighCPUUsage
+        expr: (1 - avg by(instance)(irate(node_cpu_seconds_total{mode="idle"}[5m]))) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "节点CPU使用率过高"
+          description: "{{ $labels.instance }} CPU使用率超过80%"
+
+      # 内存使用率告警
+      - alert: NodeHighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "节点内存使用率过高"
+          description: "{{ $labels.instance }} 内存使用率超过85%"
+
+      # 磁盘使用率告警
+      - alert: NodeHighDiskUsage
+        expr: (node_filesystem_size_bytes - node_filesystem_free_bytes) / node_filesystem_size_bytes * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "节点磁盘使用率过高"
+          description: "{{ $labels.instance }} {{ $labels.mountpoint }} 磁盘使用率超过85%"
+
+      # 系统负载告警
+      - alert: NodeHighLoad
+        expr: node_load1 / count without(cpu, mode) (node_cpu_seconds_total{mode="idle"}) > 1.5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "节点系统负载过高"
+          description: "{{ $labels.instance }} 系统负载超过CPU核心数的150%"
+
+      # 网络错误告警
+      - alert: NodeNetworkErrors
+        expr: rate(node_network_transmit_errs_total[5m]) + rate(node_network_receive_errs_total[5m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "节点网络错误"
+          description: "{{ $labels.instance }} 出现网络传输错误"
+
+      # 文件描述符告警
+      - alert: NodeHighFileDescriptors
+        expr: node_filefd_allocated / node_filefd_maximum * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "节点文件描述符使用率过高"
+          description: "{{ $labels.instance }} 文件描述符使用率超过80%" 

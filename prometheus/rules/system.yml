@@ -1,0 +1,62 @@
+groups:
+  - name: system
+    rules:
+      # CPU使用率告警
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CPU使用率过高"
+          description: "{{ $labels.instance }} CPU使用率超过80%"
+
+      # 内存使用率告警
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "内存使用率过高"
+          description: "{{ $labels.instance }} 内存使用率超过85%"
+
+      # 磁盘使用率告警
+      - alert: HighDiskUsage
+        expr: 100 - ((node_filesystem_avail_bytes * 100) / node_filesystem_size_bytes) > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "磁盘使用率过高"
+          description: "{{ $labels.instance }} {{ $labels.mountpoint }} 磁盘使用率超过85%"
+
+      # 磁盘IO告警
+      - alert: HighDiskIO
+        expr: rate(node_disk_io_time_seconds_total[5m]) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "磁盘IO负载过高"
+          description: "{{ $labels.instance }} {{ $labels.device }} IO使用率超过80%"
+
+      # 网络流量告警
+      - alert: HighNetworkTraffic
+        expr: sum by (instance) (rate(node_network_receive_bytes_total[5m])) > 100000000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "网络流量过高"
+          description: "{{ $labels.instance }} 网络流入流量超过100MB/s"
+
+      # 系统负载告警
+      - alert: HighSystemLoad
+        expr: node_load1 > (count by(instance) (node_cpu_seconds_total{mode="idle"}) * 0.8)
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "系统负载过高"
+          description: "{{ $labels.instance }} 系统负载超过CPU核心数的80%" 

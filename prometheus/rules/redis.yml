@@ -1,0 +1,52 @@
+groups:
+  - name: redis
+    rules:
+      # Redis连接数告警
+      - alert: RedisHighConnections
+        expr: redis_connected_clients > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis连接数过高"
+          description: "Redis连接数超过1000"
+
+      # Redis内存使用率告警
+      - alert: RedisHighMemoryUsage
+        expr: redis_memory_used_bytes / redis_memory_max_bytes * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis内存使用率过高"
+          description: "Redis内存使用率超过80%"
+
+      # Redis命中率告警
+      - alert: RedisLowHitRate
+        expr: (redis_keyspace_hits_total / (redis_keyspace_hits_total + redis_keyspace_misses_total)) * 100 < 80
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis缓存命中率过低"
+          description: "Redis缓存命中率低于80%"
+
+      # Redis延迟告警
+      - alert: RedisHighLatency
+        expr: redis_latency_milliseconds > 100
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis延迟过高"
+          description: "Redis延迟超过100ms"
+
+      # Redis拒绝连接告警
+      - alert: RedisRejectedConnections
+        expr: rate(redis_rejected_connections_total[5m]) > 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis拒绝连接"
+          description: "Redis出现拒绝连接情况" 

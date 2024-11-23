@@ -1,0 +1,26 @@
+appId: com.sanshengshui.fortune
+productName: 天机阁
+directories:
+  output: dist
+files:
+  - '**/*'
+  - '!**/*.ts'
+  - '!*.map'
+  - '!package.json'
+  - '!package-lock.json'
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+  icon: build/icon.ico
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: 天机阁
+  installerIcon: build/icon.ico
+  uninstallerIcon: build/icon.ico
+  installerHeaderIcon: build/icon.ico 

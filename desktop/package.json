@@ -1,0 +1,33 @@
+{
+  "name": "fortune-platform-desktop",
+  "version": "1.0.0",
+  "description": "天机阁占卜平台桌面客户端",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "dev": "electron . --debug"
+  },
+  "author": "仲戌字",
+  "license": "MIT",
+  "dependencies": {
+    "electron-store": "^8.1.0",
+    "electron-updater": "^6.1.7"
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1",
+    "typescript": "^5.0.0"
+  },
+  "build": {
+    "appId": "com.sanshengshui.fortune",
+    "productName": "天机阁",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico"
+    }
+  }
+} 
