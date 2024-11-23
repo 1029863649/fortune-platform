@@ -17,12 +17,11 @@ jobs:
             cd /opt/fortune-platform
             git pull
             docker-compose up -d --build
-
-    - name: Send notification
-      if: always()
-      uses: rtCamp/action-slack-notify@v2
-      env:
-        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-        SLACK_COLOR: ${{ job.status }}
-        SLACK_MESSAGE: '部署状态: ${{ job.status }}'
-        SLACK_TITLE: 天机阁占卜平台部署通知
+      - name: Send notification
+        if: always()
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_COLOR: ${{ job.status }}
+          SLACK_MESSAGE: '部署状态: ${{ job.status }}'
+          SLACK_TITLE: 天机阁占卜平台部署通知
